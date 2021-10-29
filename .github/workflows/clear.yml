@@ -24,6 +24,8 @@ jobs:
           SUPER_SECRET: ${{ secrets.SUPER_SECRET }}
         run: |
           rm -rf picture/
+          rm -rf json/
+          sleep 3
           echo "$SUPER_SECRET" | base64 --decode > ku.sh
           sh ku.sh
           echo "workflow:clear date:`date`" > last.txt
