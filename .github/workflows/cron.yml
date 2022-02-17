@@ -24,7 +24,7 @@ jobs:
           SUPER_SECRET: ${{ secrets.SUPER_SECRET }}
         run: |
           echo "$SUPER_SECRET" | base64 --decode > ku.sh
-          sh ku.sh
+          bash ku.sh
           echo "workflow:cron date:`date`" > last.txt
       - name: Commit
         run: |
