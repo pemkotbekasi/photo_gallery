@@ -1,0 +1,250 @@
+const fs = require('fs')
+const crypto = require('crypto');
+const myArgs = process.argv.slice(2);
+const ENCRYPTION_KEY = Buffer.from(myArgs[0], 'base64');
+const IV_LENGTH = 16;
+const algorithm = 'aes-256-ctr';
+
+
+async function Donload(imageUrl, imageName, path) {
+
+    const command = `wget "${imageUrl}" -O picture/${path}/${imageName}.jpg \n`
+
+    // Path ke file yang ingin diubah atau dibuat jika belum ada
+    const filePath = `wget_${path}.txt`;
+
+    // Teks yang ingin ditambahkan ke file
+    const textToAdd = command;
+
+    // Fungsi untuk menambahkan teks ke dalam file
+    function appendTextToFile(filePath, textToAdd) {
+        // Gunakan flag 'a' untuk mode append (menambahkan teks ke akhir file)
+        fs.writeFile(filePath, textToAdd, { flag: 'a' }, (err) => {
+            if (err) {
+                // console.error('Terjadi kesalahan:', err);
+                return;
+            }
+            // console.log('Teks berhasil ditambahkan ke file.');
+        });
+    }
+
+    // Panggil fungsi untuk menambahkan teks ke dalam file
+    appendTextToFile(filePath, textToAdd);
+}
+
+function Mkdir(dirName) {
+    if (!fs.existsSync(dirName)) {
+        fs.mkdirSync(dirName);
+    }
+}
+
+function encrypt(text) {
+    let iv = crypto.randomBytes(IV_LENGTH);
+    let cipher = crypto.createCipheriv(algorithm, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+}
+
+function decrypt(text) {
+    let textParts = text.split(':');
+    let iv = Buffer.from(textParts.shift(), 'hex');
+    let encryptedText = Buffer.from(textParts.join(':'), 'hex');
+    let decipher = crypto.createDecipheriv(algorithm, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+}
+
+
+Mkdir('data')
+Mkdir('json')
+
+function queueJoB() {
+
+    try {
+        var Createfile = fs.readFileSync('./data/queue.json', { encoding: 'utf8', flag: 'r' });
+        var FindUser = JSON.parse(Createfile)[0].name
+        var CurrentFile = 'queue.json'
+    } catch {
+        var Createfile = fs.readFileSync('./data/data.json', { encoding: 'utf8', flag: 'r' });
+        var FindUser = JSON.parse(Createfile)[0].name
+        var CurrentFile = 'data.json'
+
+    }
+
+    return { Createfile, FindUser ,CurrentFile}
+
+}
+
+async function GetJob() {
+    const puppeteer = require('puppeteer-extra');
+    const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+
+    puppeteer.use(StealthPlugin());
+
+    return new Promise(async (resolve) => {
+
+        const GetQueueJob = queueJoB()
+        // Create a browser instance
+        const browser = await puppeteer.launch(
+            { headless: "new", defaultViewport: null, args: ['--no-sandbox'] }
+        );
+        try {
+            // Create a new page
+            const page = await browser.newPage();
+
+            const saveCookie = async (page) => {
+                const cookies = await page.cookies();
+                const cookieJson = JSON.stringify(cookies, null, 2);
+
+                fs.writeFileSync('./data/enkrip.txt', encrypt(cookieJson));
+
+                // fs.writeFileSync('./kuki.json', cookieJson);
+
+            }
+            const loadCookie = async (page) => {
+                const adsdas = fs.readFileSync('./data/enkrip.txt', { encoding: 'utf8', flag: 'r' })
+
+                // const kuki = fs.readFileSync('./kuki.json', { encoding: 'utf8', flag: 'r' })
+
+                const cookies = JSON.parse(
+                    decrypt(adsdas)
+                    // kuki
+                );
+                await page.setCookie(...cookies);
+            }
+
+            // Custom user agent
+            const customUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36';
+
+            // Set custom user agent
+            await page.setUserAgent(customUA);
+
+          
+  page.on('response', async response => {
+    if (response.url().includes("https://www.instagram.com/graphql/query")) {
+      try {
+        const data = await response.json();
+        if (data.data.xdt_api__v1__feed__user_timeline_graphql_connection) {
+          if (data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.code) {
+            console.log(JSON.stringify(data))
+
+            const Filename = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.owner.pk;
+            Mkdir('picture');
+            Mkdir(`./picture/${Filename}`);
+
+            const Isi = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges.map(d => {
+              return {
+                id: d.node.code,
+                image: d.node.image_versions2.candidates[0].url,
+                caption: d.node.caption.text,
+                post_time: d.node.taken_at,
+                owner: Filename,
+                cdn_image: `//cdn.jsdelivr.net/gh/pemkotbekasi/photo_gallery/picture/${Filename}/${d.node.code}.jpg`
+              };
+            });
+
+            if (fs.existsSync(`./json/${Filename}.json`)) {
+              const fileContent = fs.readFileSync(`./json/${Filename}.json`, 'utf8');
+
+              // const uniqueArray = JSON.parse(fileContent).filter((obj, index, self) =>
+              //   index === self.findIndex(o => o.id === obj.id && o.owner === obj.owner)
+              // );
+
+              const seenIds = new Set();
+
+              const uniqueArray = JSON.parse(fileContent).filter((obj, index, self) =>
+                index === self.findIndex(o => o.id === obj.id && o.owner === obj.owner)
+              )
+
+              const COmbinedData = uniqueArray.concat(Isi).sort((a, b) => b.post_time - a.post_time).filter(item => {
+                if (seenIds.has(item.id)) {
+                  return false;
+                } else {
+                  seenIds.add(item.id);
+                  return true;
+                }
+              });
+
+              await fs.promises.writeFile(`./json/${Filename}.json`, JSON.stringify( COmbinedData ));
+            } else {
+              await fs.promises.writeFile(`./json/${Filename}.json`, JSON.stringify(Isi.sort((a, b) => b.post_time - a.post_time)));
+            }
+
+            const asdasdasd = JSON.parse(GetQueueJob.Createfile);
+            const filteredData = asdasdasd.filter(item => item.name !== GetQueueJob.FindUser);
+            const WriteFindUserId = fs.readFileSync('./data/data.json', 'utf8');
+            const filteredDataWriteFindUserId = JSON.parse(WriteFindUserId).filter(item => item.name !== GetQueueJob.FindUser);
+
+            Isi.forEach(d => Donload(d.image, d.id, Filename));
+
+            fs.writeFileSync('./data/queue.json', JSON.stringify(filteredData));
+            fs.writeFileSync('./data/data.json', JSON.stringify(filteredDataWriteFindUserId.concat({ name: GetQueueJob.FindUser, id: Filename })));
+
+            await saveCookie(page);
+            return resolve(GetQueueJob.FindUser + ' success');
+          }
+        }
+      } catch (error) {
+        const asdasdasd = JSON.parse(GetQueueJob.Createfile);
+        const filteredData = asdasdasd.filter(item => item.name !== GetQueueJob.FindUser);
+        fs.writeFileSync('./data/queue.json', JSON.stringify(filteredData));
+        return resolve(GetQueueJob.FindUser + ' add to queue');
+      }
+    } else if (response.status() >= 300 && response.status() < 400) {
+      const redirectUrl = response.headers()['location'];
+      if (redirectUrl) {
+        console.log('Redirecting to:', redirectUrl);
+        await page.goto(redirectUrl);
+      }
+    }
+  });
+
+            const website_url = `https://www.instagram.com/${GetQueueJob.FindUser}/?_showcaption=true`;
+
+            // Open URL in current page
+
+            await loadCookie(page);
+            await page.goto(website_url, { waitUntil: 'networkidle0' });
+
+
+
+            // Close the browser instance
+            // await browser.close();
+
+        } catch (error) {
+            // console.log(error);
+        } finally {
+            await browser.close();
+
+            if(queueJoB().CurrentFile === 'data.json'){
+                console.log('finish')
+            }else{
+                GetJob()//.then(console.log)
+                
+            }
+
+            
+        }
+
+    })
+
+
+}
+
+const CurrenJob = queueJoB()
+
+
+if(CurrenJob.CurrentFile === 'data.json'){
+
+    fs.writeFileSync('./data/queue.json', CurrenJob.Createfile);
+    GetJob()
+
+}else{
+    
+    
+    GetJob()
+}
+ 
+
