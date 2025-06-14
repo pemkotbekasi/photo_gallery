@@ -171,7 +171,7 @@ async function GetJob() {
                                                     username: username,
                                                     comment_count: d.node.comment_count,
                                                     like_count: d.node.like_count,
-                                                    cdn_image: `//cdn.jsdelivr.net/gh/pemkotbekasi/photo_gallery/picture/${username}/${d.node.code}.jpg`
+                                                    cdn_image: `//cdn.jsdelivr.net/gh/pemkotbekasi/photo_gallery/picture/${Filename}/${d.node.code}.jpg`
                                                 }
                                             })
 
