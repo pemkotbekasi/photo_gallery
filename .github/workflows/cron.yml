@@ -3,8 +3,8 @@ name: rebuild Data
 
 on:
   schedule:
-    # Runs "at minute 45  minute " (see https://crontab.guru)
-    - cron: '*/45 * * * *'
+    # Runs "at minute 145  minute " (see https://crontab.guru)
+    - cron: '*/145 * * * *'
 
 jobs:
   build:
