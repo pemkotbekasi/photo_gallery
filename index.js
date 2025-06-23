@@ -151,13 +151,15 @@ async function GetJob() {
 
 
 
-                                if(data?.data?.user !==undefined){
+                                if(data?.data.user !==undefined){
                                     const user_id = data.data.user.pk || 0
                                     const JsonUserID = user_id
 
                                     fs.writeFileSync(`./user_data/${JsonUserID}_userdata.json`, JSON.stringify(data));
-                                    // console.log('save data user detail')
+                                    console.log('save data user detail')
 
+                                }else{
+                                console.log('data user detail notfound')
                                 }
 
 
