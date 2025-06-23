@@ -30,6 +30,8 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # git checkout --orphan latest_branch
           # git add -A
+
+          git add .
           git commit -am "[AUTO:BUILD] `date`"
       - name: GitHub Push
         uses: ad-m/github-push-action@master
