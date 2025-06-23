@@ -60,6 +60,7 @@ function decrypt(text) {
 
 Mkdir('data')
 Mkdir('json')
+Mkdir('user_data')
 
 function queueJoB() {
 
@@ -150,12 +151,12 @@ async function GetJob() {
 
 
 
-                                                              if(data?.user !==undefined){
+                                if(data?.data?.user !==undefined){
                                     const user_id = data.data.user.pk || 0
                                     const JsonUserID = user_id
 
-                                    fs.writeFileSync(`./json/${JsonUserID}_userdata.json`, JSON.stringify(data));
-                                                                  console.log('save data user detail')
+                                    fs.writeFileSync(`./user_data/${JsonUserID}_userdata.json`, JSON.stringify(data));
+                                    // console.log('save data user detail')
 
                                 }
 
