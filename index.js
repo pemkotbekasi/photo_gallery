@@ -272,6 +272,18 @@ async function GetJob() {
 
             if (queueJoB().CurrentFile === 'data.json') {
                 console.log('finish')
+
+                const {MergeJson} = require('@rahadiana/simple_merge_json')
+const fs = require('fs')
+
+async function MergeData(){
+                                        
+    fs.writeFileSync(`./merge.json`, JSON.stringify(await MergeJson(__dirname+'/json/')));
+    
+}
+
+MergeData()
+
             } else {
                 GetJob().then(console.log)
 
