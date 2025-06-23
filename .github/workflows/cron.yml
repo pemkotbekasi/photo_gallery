@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ '18' ]
+        node: [ '20' ]
     steps:
       - uses: actions/checkout@v1
       - name: Setup node
@@ -27,6 +27,7 @@ jobs:
           timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
           cat *.txt | sh
           echo "workflow:cron date:`date`" > last.txt
+          node merge.js > post-data.json
       - name: Commit
         run: |
           git config --local user.name "github-actions[bot]"
