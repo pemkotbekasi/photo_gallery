@@ -148,6 +148,18 @@ async function GetJob() {
 
                                 const data = (await response.json())
 
+
+
+                                                              if(data?.user?.friendship_status !==undefined){
+                                    const user_id = data.data.user.pk || 0
+                                    const JsonUserID = user_id
+
+                                    fs.writeFileSync(`./json/${JsonUserID}_userdata.json`, JSON.stringify(data));
+
+                                }
+
+
+                                
                                 if (data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection !== undefined) {
 
                                     if (data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.code) {
