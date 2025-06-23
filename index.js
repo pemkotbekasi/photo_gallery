@@ -150,11 +150,12 @@ async function GetJob() {
 
 
 
-                                                              if(data?.user?.friendship_status !==undefined){
+                                                              if(data?.user !==undefined){
                                     const user_id = data.data.user.pk || 0
                                     const JsonUserID = user_id
 
                                     fs.writeFileSync(`./json/${JsonUserID}_userdata.json`, JSON.stringify(data));
+                                                                  console.log('save data user detail')
 
                                 }
 
