@@ -185,8 +185,8 @@ async function GetJob() {
                                                     post_time: d.node.taken_at,
                                                     owner: Filename,
                                                     username: username,
-                                                    comment_count: d.node.comment_count,
-                                                    like_count: d.node.like_count,
+                                                    comment_count: d.node.comment_count|| 0,
+                                                    like_count: d.node.like_count || 0,
                                                     cdn_image: `//cdn.jsdelivr.net/gh/pemkotbekasi/photo_gallery/picture/${Filename}/${d.node.code}.jpg`
                                                 }
                                             })
