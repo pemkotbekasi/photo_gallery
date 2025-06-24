@@ -7,7 +7,7 @@ async function oo(){
   const dta = await MergeJson(__dirname+'/json/')
 
   console.log(
-    JSON.parse(dta)
+    JSON.stringify(JSON.parse(dta))
   )
 
 }
