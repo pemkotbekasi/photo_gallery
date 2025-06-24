@@ -1,4 +1,13 @@
 
 const {MergeJson} = require('@rahadiana/simple_merge_json')
 
-MergeJson(__dirname+'/json/').then(console.log)
+
+
+async function oo(){
+  const dta = await MergeJson(__dirname+'/json/')
+
+  console.log(
+    JSON.parse(dta)
+  )
+
+}
