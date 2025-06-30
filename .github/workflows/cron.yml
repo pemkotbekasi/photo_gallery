@@ -27,7 +27,7 @@ jobs:
           timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
           cat *.txt | sh
           echo "workflow:cron date:`date`" > last.txt
-          node merge.js > post-data.json
+          node merge.js
       - name: Commit
         run: |
           git config --local user.name "github-actions[bot]"
