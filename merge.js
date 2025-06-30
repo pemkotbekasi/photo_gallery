@@ -1,15 +1,22 @@
 
 const {MergeJson} = require('@rahadiana/simple_merge_json')
+const fs = require('fs')
 
 
-
-async function oo(){
+async function post_data(){
   const dta = await MergeJson(__dirname+'/json/')
 
-  console.log(
-    JSON.stringify(JSON.parse(dta))
-  )
+fs.writeFileSync("./post-data.json", JSON.stringify(JSON.parse(dta)));
 
 }
 
-oo()
+post_data()
+
+async function user_data(){
+  const dta = await MergeJson(__dirname+'/user_data/')
+
+fs.writeFileSync("./user_data.json", JSON.stringify(JSON.parse(dta)));
+
+}
+
+user_data()
