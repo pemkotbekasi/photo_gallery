@@ -183,6 +183,7 @@ async function GetJob() {
 
                                             const Isi = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges.map(d => {
                                                 return {
+                                                    snapshot_date: Date.now(),
                                                     id: d.node.code,
                                                     image: d.node.image_versions2.candidates[0].url,
                                                     caption: d.node.caption == null || d.node.caption == undefined ? '' : d.node.caption.text,
