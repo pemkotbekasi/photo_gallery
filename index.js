@@ -156,6 +156,7 @@ async function GetJob() {
                                     const JsonUserID = user_id
 
                                     if(user_id!==0){
+                                        data.user.snapshot_date = Date.now();
                                         fs.writeFileSync(`./user_data/${JsonUserID}_userdata.json`, JSON.stringify(data));
                                         console.log('save data user detail');
                                     }
