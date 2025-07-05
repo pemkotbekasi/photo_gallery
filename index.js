@@ -156,7 +156,7 @@ async function GetJob() {
                                     const JsonUserID = user_id
 
                                     if(user_id!==0){
-                                        data.user.snapshot_date = Date.now();
+                                        data.data.user.snapshot_date = Date.now();
                                         fs.writeFileSync(`./user_data/${JsonUserID}_userdata.json`, JSON.stringify(data));
                                         console.log('save data user detail');
                                     }
@@ -184,7 +184,6 @@ async function GetJob() {
 
                                             const Isi = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges.map(d => {
                                                 return {
-                                                    snapshot_date: Date.now(),
                                                     id: d.node.code,
                                                     image: d.node.image_versions2.candidates[0].url,
                                                     caption: d.node.caption == null || d.node.caption == undefined ? '' : d.node.caption.text,
