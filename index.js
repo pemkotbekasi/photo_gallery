@@ -176,6 +176,10 @@ async function GetJob() {
                                         // console.log(data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.code)
 
                                         try {
+                                                
+                                            const currentUrl = page.url(); // alamat di address bar
+
+
                                             data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges
                                             const Filename = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.owner.pk
                                             const username = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.owner.username
@@ -184,6 +188,7 @@ async function GetJob() {
 
                                             const Isi = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges.map(d => {
                                                 return {
+                                                    current_url:currentUrl,
                                                     snapshot_date : Date.now(),
                                                     id: d.node.code,
                                                     image: d.node.image_versions2.candidates[0].url,
