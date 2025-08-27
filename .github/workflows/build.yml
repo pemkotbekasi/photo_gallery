@@ -19,10 +19,10 @@ jobs:
         env:
           SUPER_SECRET: ${{ secrets.ENC }}
         run: |
-          rm -rf json
-          rm -rf user_data
-          mkdir -p user_data
-          mkdir -p json
+          # rm -rf json
+          # rm -rf user_data
+          # mkdir -p user_data
+          # mkdir -p json
           npm i > /dev/null 2>&1
           timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
           cat *.txt | sh
@@ -44,6 +44,7 @@ jobs:
           directory: "."
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
+
 
 
 
