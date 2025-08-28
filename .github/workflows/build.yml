@@ -28,6 +28,10 @@ jobs:
           # timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
           # cat *.txt | sh
           # node merge.js
+
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"          
+          
           git checkout --orphan latest_branch
           git add -A
           git commit -am "commit message"
@@ -51,6 +55,7 @@ jobs:
           directory: "."
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
+
 
 
 
