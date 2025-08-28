@@ -21,12 +21,19 @@ jobs:
         run: |
           # rm -rf json
           # rm -rf user_data
-          mkdir -p user_data
-          mkdir -p json
-          npm i > /dev/null 2>&1
-          timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
-          cat *.txt | sh
-          node merge.js
+          
+          # mkdir -p user_data
+          # mkdir -p json
+          # npm i > /dev/null 2>&1
+          # timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
+          # cat *.txt | sh
+          # node merge.js
+          git checkout --orphan latest_branch
+          git add -A
+          git commit -am "commit message"
+          git branch -D main
+          git branch -m main
+          git push -f origin main
       - name: Commit
         run: |
           echo "OK"
@@ -44,6 +51,7 @@ jobs:
           directory: "."
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
+
 
 
 
