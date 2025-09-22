@@ -1,0 +1,58 @@
+name: CI
+on: [push]
+
+jobs:
+  build:
+    name: Builds
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ '20' ]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Jalankan Skrip
+        env:
+          SUPER_SECRET: ${{ secrets.ENC }}
+        run: |
+          # rm -rf json
+          # rm -rf user_data
+          
+          # mkdir -p user_data
+          # mkdir -p json
+          # npm i > /dev/null 2>&1
+          # timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
+          # cat *.txt | sh
+          # node merge.js
+
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git checkout --orphan latest_branch
+          git add -A
+          git commit -am "commit message"
+          git branch -D main || true
+          git branch -m main
+          # Konfigurasi remote pakai token (jika ingin push manual, tidak direkomendasikan)
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push -f origin main
+      - name: Commit
+        run: |
+          echo "OK"
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # git checkout --orphan latest_branch
+          # git add -A
+
+          git add .
+          git commit -am "[AUTO:BUILD] `date`" || true # biar tidak error kalau tidak ada perubahan
+      - name: GitHub Push
+        uses: ad-m/github-push-action@master
+        with:
+          force: true
+          directory: "."
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main

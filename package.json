@@ -1,0 +1,18 @@
+{
+  "name": "instagram_sc",
+  "version": "1.0.0",
+  "description": "download instagram user",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "rahadiana nugraha <rahadiana.nugraha@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@rahadiana/simple_merge_json": "github:rahadiana/simple_merge_json",
+    "puppeteer": "^22.6.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
