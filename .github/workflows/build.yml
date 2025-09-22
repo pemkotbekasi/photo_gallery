@@ -23,30 +23,27 @@ jobs:
           
           # mkdir -p user_data
           # mkdir -p json
-          # npm i > /dev/null 2>&1
-          # timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
-          # cat *.txt | sh
-          # node merge.js
+          npm i > /dev/null 2>&1
+          timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
+          cat *.txt | sh
+          node merge.js
 
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # git config --local user.name "github-actions[bot]"
+          # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          git checkout --orphan latest_branch
-          git add -A
-          git commit -am "commit message"
-          git branch -D main || true
-          git branch -m main
-          # Konfigurasi remote pakai token (jika ingin push manual, tidak direkomendasikan)
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push -f origin main
+          # git checkout --orphan latest_branch
+          # git add -A
+          # git commit -am "commit message"
+          # git branch -D main || true
+          # git branch -m main
+          # # Konfigurasi remote pakai token (jika ingin push manual, tidak direkomendasikan)
+          # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          # git push -f origin main
       - name: Commit
         run: |
           echo "OK"
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # git checkout --orphan latest_branch
-          # git add -A
-
           git add .
           git commit -am "[AUTO:BUILD] `date`" || true # biar tidak error kalau tidak ada perubahan
       - name: GitHub Push
@@ -56,3 +53,4 @@ jobs:
           directory: "."
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
+
