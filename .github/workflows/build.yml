@@ -23,10 +23,10 @@ jobs:
           
           # mkdir -p user_data
           # mkdir -p json
-          #npm i > /dev/null 2>&1
-          timeout 1500 echo "$SUPER_SECRET" | base64 --decode ##| sh || true #> /dev/null 2>&1
-          #cat *.txt | sh
-          #node merge.js
+          npm i > /dev/null 2>&1
+          timeout 1500 echo "$SUPER_SECRET" | base64 --decode | sh || true #> /dev/null 2>&1
+          cat *.txt | sh
+          node merge.js
 
           # git config --local user.name "github-actions[bot]"
           # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -53,5 +53,6 @@ jobs:
           directory: "."
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
+
 
 
