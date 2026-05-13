@@ -21,7 +21,7 @@ jobs:
           # rm -rf json
           # rm -rf user_data
           # rm -rf picture
-
+          #
           mkdir -p picture
           mkdir -p user_data
           mkdir -p json
