@@ -8,7 +8,8 @@ const algorithm = 'aes-256-ctr';
 
 async function Donload(imageUrl, imageName, path) {
 
-    const command = `wget "${imageUrl}" -O picture/${path}/${imageName}.jpg \n`
+    // const command = `wget --debug -nc "${imageUrl}" -O picture/${path}/${imageName}.jpg \n`
+    const command = `aria2c -c "${imageUrl}" -d picture/${path} -o ${imageName}.jpg \n`;
 
     // Path ke file yang ingin diubah atau dibuat jika belum ada
     const filePath = `${path}.txt`;
@@ -59,6 +60,7 @@ function decrypt(text) {
 
 Mkdir('data')
 Mkdir('json')
+Mkdir('user_data')
 
 function queueJoB() {
 
@@ -73,7 +75,7 @@ function queueJoB() {
 
     }
 
-    return { Createfile, FindUser ,CurrentFile}
+    return { Createfile, FindUser, CurrentFile }
 
 }
 
@@ -96,14 +98,14 @@ async function GetJob() {
                 const cookieJson = JSON.stringify(cookies, null, 2);
 
                 fs.writeFileSync('./data/enkrip.txt', encrypt(cookieJson));
-
+                console.log("kuki save")
                 // fs.writeFileSync('./kuki.json', cookieJson);
 
             }
             const loadCookie = async (page) => {
                 const adsdas = fs.readFileSync('./data/enkrip.txt', { encoding: 'utf8', flag: 'r' })
 
-                // const kuki = fs.readFileSync('./www.instagram.com.cookies.json', { encoding: 'utf8', flag: 'r' })
+                // const kuki = fs.readFileSync('./kuki.json', { encoding: 'utf8', flag: 'r' })
 
                 const cookies = JSON.parse(
                     decrypt(adsdas)
@@ -113,100 +115,140 @@ async function GetJob() {
             }
 
             // Custom user agent
-            const customUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36';
+            const customUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36';
 
             // Set custom user agent
             await page.setUserAgent(customUA);
 
-                        // Add mouse scroll for up to 20 seconds
-                        let startTime = Date.now();
-                        let scrollInterval = setInterval(async () => {
-                            const timeElapsed = Date.now() - startTime;
-            
-                            if (timeElapsed >= 20000) {
-                                clearInterval(scrollInterval);
-                            } else {
-                                await page.evaluate(() => {
-                                    window.scrollBy(0, window.innerHeight); // Scroll down by the viewport height
-                                });
-                            }
-                        }, 200); // Scroll every 200 milliseconds
-                        
             page.on('response', async response => {
-                if (response.url().includes("https://www.instagram.com/graphql/query")) {
-                    const data = (await response.json())
+                try {
 
-                    if (data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection !== undefined) {
+                    if (response.url().includes("https://www.instagram.com/graphql/query")) {
 
-                        if (data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.code) {
 
-                            // console.log(data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.code)
 
+                        const status = response.status();
+                        if (status < 300 || status >= 400) {
                             try {
-                                data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection.edges
-                                const Filename = data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.user.pk
-                                console.log(data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0])
-                                Mkdir('picture')
-                                Mkdir(`./picture/${Filename}`)
 
-                                const Isi = data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection.edges.map(d => {
-                                    return {
-                                        id: d.node.code,
-                                        image: d.node.image_versions2.candidates[0].url,
-                                        caption: d.node.caption == null || d.node.caption== undefined ?'':d.node.caption.text,
-                                        post_time: d.node.taken_at,
-                                        owner: Filename,
-                                        cdn_image: `//cdn.jsdelivr.net/gh/pemkotbekasi/photo_gallery/picture/${Filename}/${d.node.id}.jpg`
+
+
+                                const data = (await response.json())
+
+
+
+                                if(data?.data?.user != null){
+                                    const user_id = data.data.user.pk || 0
+                                    const JsonUserID = user_id
+
+                                    if(user_id!==0){
+                                        data.data.user.snapshot_date = Date.now();
+                                        fs.writeFileSync(`./user_data/${JsonUserID}_userdata.json`, JSON.stringify(data));
+                                        console.log('save data user detail');
                                     }
-                                })
 
-                                if (fs.existsSync(`./json/${Filename}.json`)) {
-                                    // Baca isi file secara synchronous
-                                    const fileContent = fs.readFileSync(`./json/${Filename}.json`, 'utf8');
+                                  
 
-
-                                    const uniqueArray = JSON.parse(fileContent).filter((obj, index, self) =>
-                                    index === self.findIndex(o => o.id === obj.id && o.owner === obj.owner)
-                                  );
-
-                                    await require('fs').promises.writeFile(`./json/${Filename}.json`, JSON.stringify(uniqueArray.concat(Isi) ));
-
-                                    // console.log('Isi file:', fileContent);
-                                } else {
-                                    await require('fs').promises.writeFile(`./json/${Filename}.json`, JSON.stringify(Isi));
+                                }else{
+                                console.log('data user detail notfound')
                                 }
+
+
                                 
-                                const asdasdasd = JSON.parse(GetQueueJob.Createfile)
-                                
-                                const filteredData = asdasdasd.filter(item => item.name !== GetQueueJob.FindUser)
+                                const feedData = data?.data?.xdt_api__v1__feed__user_timeline_graphql_connection;
+                                if (feedData?.edges?.[0]?.node?.code && feedData?.edges?.[0]?.node?.user) {
 
-                                const WriteFindUserId = fs.readFileSync('./data/data.json', { encoding: 'utf8', flag: 'r' })
-                                const filteredDataWriteFindUserId = JSON.parse(WriteFindUserId).filter(item => item.name !== GetQueueJob.FindUser)
+                                        // console.log(data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node.code)
 
-                                Isi.map(d => Donload(d.image, d.id, Filename))
+                                        try {
+                                                
+                                            const currentUrl = page.url(); // alamat di address bar
 
-                                fs.writeFileSync('./data/queue.json', JSON.stringify(filteredData));
 
-                                // add user id instagram
-                                fs.writeFileSync('./data/data.json', JSON.stringify(filteredDataWriteFindUserId.concat({ name: GetQueueJob.FindUser, id: Filename })));
+                                            const n0 = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges[0].node
+                                            const Filename = n0.user.pk
+                                            const username = n0.user.username
+                                            Mkdir('picture')
+                                            Mkdir(`./picture/${username}`)
 
-                                await saveCookie(page);
-                                // console.log(GetQueueJob.FindUser + ' sucess');
+                                            const Isi = data.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges
+                                                .filter(d => d?.node?.code && d?.node?.image_versions2?.candidates?.[0]?.url)
+                                                .map(d => {
+                                                return {
+                                                    current_url:currentUrl,
+                                                    snapshot_date : Date.now(),
+                                                    id: d.node.code,
+                                                    image: d.node.image_versions2.candidates[0].url,
+                                                    caption: d.node.caption == null || d.node.caption == undefined ? '' : d.node.caption.text,
+                                                    post_time: d.node.taken_at,
+                                                    owner: Filename,
+                                                    username: username,
+                                                    comment_count: d.node.comment_count|| 0,
+                                                    like_count: d.node.like_count || 0,
+                                                    cdn_image: `//cdn.jsdelivr.net/gh/pemkotbekasi/photo_gallery/picture/${Filename}/${d.node.code}.jpg`
+                                                }
+                                            })
 
-                                return resolve(GetQueueJob.FindUser + ' sucess');
-                            } catch (e) {
-                                const asdasdasd = JSON.parse(GetQueueJob.Createfile)
+                                            if (fs.existsSync(`./json/${Filename}.json`)) {
+                                                // Baca isi file secara synchronous
+                                                const fileContent = fs.readFileSync(`./json/${Filename}.json`, 'utf8');
 
-                                const filteredData = asdasdasd.filter(item => item.name !== GetQueueJob.FindUser)
-                                fs.writeFileSync('./data/queue.json', JSON.stringify(filteredData));
-                                // console.log(FindUser + ' add to queue');
-                                console.log(e)
-                                return resolve(GetQueueJob.FindUser + ' add to queue');
+
+                                                const uniqueArray = JSON.parse(fileContent).filter((obj, index, self) =>
+                                                    index === self.findIndex(o => o.id === obj.id && o.owner === obj.owner)
+                                                );
+
+                                                await require('fs').promises.writeFile(`./json/${Filename}.json`, JSON.stringify(uniqueArray.concat(Isi)));
+
+                                                // console.log('Isi file:', fileContent);
+                                            } else {
+                                                await require('fs').promises.writeFile(`./json/${Filename}.json`, JSON.stringify(Isi));
+                                            }
+
+                                            const asdasdasd = JSON.parse(GetQueueJob.Createfile)
+
+                                            const filteredData = asdasdasd.filter(item => item.name !== GetQueueJob.FindUser)
+
+                                            const WriteFindUserId = fs.readFileSync('./data/data.json', { encoding: 'utf8', flag: 'r' })
+                                            const filteredDataWriteFindUserId = JSON.parse(WriteFindUserId).filter(item => item.name !== GetQueueJob.FindUser)
+
+                                            Isi.map(d => Donload(d.image, d.id, Filename))
+
+                                            fs.writeFileSync('./data/queue.json', JSON.stringify(filteredData));
+
+                                            // add user id instagram
+                                            fs.writeFileSync('./data/data.json', JSON.stringify(filteredDataWriteFindUserId.concat({ name: GetQueueJob.FindUser, id: Filename })));
+
+                                            await saveCookie(page);
+                                            // console.log(GetQueueJob.FindUser + ' sucess');
+
+                                            return resolve(GetQueueJob.FindUser + ' sucess');
+                                        } catch (e) {
+                                            const asdasdasd = JSON.parse(GetQueueJob.Createfile)
+
+                                            const filteredData = asdasdasd.filter(item => item.name !== GetQueueJob.FindUser)
+                                            fs.writeFileSync('./data/queue.json', JSON.stringify(filteredData));
+                                            // console.log(FindUser + ' add to queue');
+                                            console.log(e)
+                                            return resolve(GetQueueJob.FindUser + ' add to queue');
+                                        }
+
+                                    }
+                            } catch (err) {
+                                console.error('Error getting body:', err.message);
                             }
-
+                        } else {
+                            console.log(`Redirect response ignored: ${response.url()}`);
                         }
 
+
+
+
+
                     }
+
+                } catch {
+
                 }
 
             });
@@ -218,6 +260,27 @@ async function GetJob() {
             await loadCookie(page);
             await page.goto(website_url, { waitUntil: 'networkidle0' });
 
+            // Add mouse scroll for up to 20 seconds
+
+            try {
+                let previousHeight;
+                while (true) {
+                    previousHeight = await page.evaluate('document.body.scrollHeight');
+                    await page.evaluate(() => {
+                        window.scrollBy(0, window.innerHeight); // Scroll down by the viewport height
+                    });
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Wait for content to load
+                    const newHeight = await page.evaluate('document.body.scrollHeight');
+                    
+                    if (newHeight === previousHeight) {
+                        console.log('Reached the bottom of the page.');
+                        break;
+                    }
+                }
+            } catch (err) {
+                console.error('Error during scrolling:', err);
+            }
+
             // Close the browser instance
             // await browser.close();
 
@@ -226,11 +289,32 @@ async function GetJob() {
         } finally {
             await browser.close();
 
-            if(queueJoB().CurrentFile === 'data.json'){
+            // Safeguard: skip user if feed data wasn't captured (queue unchanged)
+            try {
+                const currentQ = JSON.parse(fs.readFileSync('./data/queue.json', 'utf8'));
+                if (currentQ.some(item => item.name === GetQueueJob.FindUser)) {
+                    fs.writeFileSync('./data/queue.json', JSON.stringify(currentQ.filter(item => item.name !== GetQueueJob.FindUser)));
+                    console.log(`skip ${GetQueueJob.FindUser}: no feed data captured`);
+                }
+            } catch (_) {}
+
+            if (queueJoB().CurrentFile === 'data.json') {
                 console.log('finish')
-            }else{
+
+                const {MergeJson} = require('@rahadiana/simple_merge_json')
+const fs = require('fs')
+
+async function MergeData(){
+                                        
+    fs.writeFileSync(`./merge.json`, JSON.stringify(await MergeJson(__dirname+'/json/')));
+    
+}
+
+MergeData()
+
+            } else {
                 GetJob().then(console.log)
-                
+
             }
         }
 
@@ -239,15 +323,12 @@ async function GetJob() {
 
 const CurrenJob = queueJoB()
 
-if(CurrenJob.CurrentFile === 'data.json'){
+if (CurrenJob.CurrentFile === 'data.json') {
 
     fs.writeFileSync('./data/queue.json', CurrenJob.Createfile);
     GetJob()
 
-}else{
-    
+} else {
+
     GetJob()
 }
- 
-
-
